@@ -26,14 +26,18 @@
 #include "freertos/task.h"
 #include "freertos/timers.h"
 
+//** Process Architecture Includes **//
+#include "porting.h"
+#include "process.h"
+
 ///** uController Includes **///
+#include "esp_log.h"
 
 /** CONSTANTS *****************************************************************/
 #define EXIT_SUCCESS 0
-#define EXIT_FAIL    1
+#define EXIT_FAILURE 1
 
 #define QUEUE_SIZE   32 // Default Queue List Size
-
 
 /** TYPEDEFS ******************************************************************/
 
@@ -46,16 +50,15 @@ typedef enum
 typedef enum
 {
     eProcessDemo = 0,
-    eProcessMax = 255,
-}eProcessID_t;
+    eProcessMax  = 255,
+} eProcessID_t;
 
 typedef struct
 {
     eProcessID_t processID;
-    eTaskID_t taskID;
-    void*     data;
+    eTaskID_t    taskID;
+    void*        data;
 } Message_t;
-
 
 /** MACROS ********************************************************************/
 

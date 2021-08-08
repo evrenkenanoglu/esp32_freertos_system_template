@@ -13,7 +13,7 @@
 
 /** INCLUDES ******************************************************************/
 
-#include "main/system.h"
+#include "system.h"
 
 /** CONSTANTS *****************************************************************/
 
@@ -21,8 +21,18 @@
 
 typedef struct
 {
-    uint8_t dummy;
+    uint8_t dummyValue;
+} DemoTaskParams_t;
+
+typedef struct
+{
+    DemoTaskParams_t task1Params;
 } AppParams_t;
+
+typedef struct
+{
+    const uint8_t const_dummy;
+} AppConsts_t;
 
 /** MACROS ********************************************************************/
 
@@ -32,16 +42,20 @@ typedef struct
 #define INTERFACE
 #endif
 
-#define APP_DEMO_CREATE(_name, _processEnum)                                                                                                                                                           \
+#define APP_DEMO_CREATE(_name, _enum)                                                                                                                                                                  \
     AppParams_t _name##Params = {                                                                                                                                                                      \
-        0,                                                                                                                                                                                             \
-    };
-
+        .task1Params =                                                                                                                                                                                  \
+            {                                                                                                                                                                                          \
+                .dummyValue = 0,                                                                                                                                                                       \
+            },                                                                                                                                                                                         \
+    };                                                                                                                                                                                                 \
+    AppConsts_t _name##Consts = {                                                                                                                                                                      \
+        .const_dummy = 10,                                                                                                                                                                             \
+    };                                                                                                                                                                                                 \
+    PROCESS_CREATE(_name, _enum, demoInit, demoSuspend, demoResume, demoTerminate, &_name##Params, &_name##Consts)
 /** VARIABLES *****************************************************************/
 
 /** FUNCTIONS *****************************************************************/
-
-
 
 #undef INTERFACE // Should not let this roam free
 
