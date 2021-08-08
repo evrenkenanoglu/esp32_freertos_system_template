@@ -2,7 +2,10 @@
 set(COMPONENT_REQUIRES )
 set(COMPONENT_PRIV_REQUIRES )
 
-set(COMPONENT_SRCS "main.c")
+set(COMPONENT_SRCS  "demoApp.c" 
+                    "process.c" 
+                    "main.c"
+                    "system.c")
 set(COMPONENT_ADD_INCLUDEDIRS "")
 
 register_component()
