@@ -43,27 +43,33 @@
 
 typedef enum
 {
+    //**Demo App **//
     eTaskDemo1 = 0,
+
+    //**Demo App2 **//
     eTaskDemo2,
+
+    eTaskMax,
 } eTaskID_t;
 
 typedef enum
 {
-    eProcessDemo = 0,
-    eProcessMax  = 255,
+    eProcessDemo1 = 1,
+    eProcessDemo2,
+    eProcessMax,
 } eProcessID_t;
 
 typedef struct
 {
-    eProcessID_t processID;
-    eTaskID_t    taskID;
-    void*        data;
+    eProcessID_t senderProcess; ///> Sender Process ID
+    eTaskID_t    senderTask;    ///> Sender Task ID
+    uint32_t     data;       ///> Data pointer
 } Message_t;
 
 /** MACROS ********************************************************************/
 
-#define GLOBAL_QUEUE_LIST_CREATE(_size) \ ///< Inter-Tasks Communications
-QueueHandle_t globalQueueList[QUEUE_SIZE];
+// #define GLOBAL_QUEUE_LIST_CREATE(_size) \ ///< Inter-Tasks Communications
+QueueHandle_t globalQueueList[eTaskMax];
 
 #ifndef FILE_SYSTEM_C
 #define INTERFACE extern

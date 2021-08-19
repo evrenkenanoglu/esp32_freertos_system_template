@@ -13,19 +13,20 @@
 /** INCLUDES ******************************************************************/
 #include "demoapp.h"
 /** CONSTANTS *****************************************************************/
-const char* processTag = "Demo App Process";
+const char* processTag = "Demo Process 1";
 const char* tagTask1   = "Task1";
 /** TYPEDEFS ******************************************************************/
 
 /** MACROS ********************************************************************/
 #define TASK_DEMO_DELAY_INTERVAL 1000 // ms
-
+#define TASK_DEMO_1_QUEUE_SIZE 5
 /** VARIABLES *****************************************************************/
 
 /** LOCAL FUNCTION DECLARATIONS ***********************************************/
 static void Delay(void);
 static void taskDemo1(void* pvParameters);
 TaskHandle_t xHandle;
+
 
 /** INTERFACE FUNCTION DEFINITIONS ********************************************/
 
@@ -39,7 +40,8 @@ PROCESS_INIT_FUNC(demoInit)
 
     //**Create your tasks and pass the task or process parameters...
 
-    TASK_CREATE(taskDemo1, tagTask1, 4096, &params->task1Params, 5, &xHandle);
+    globalQueueList[eTaskDemo1] = xQueueCreate(TASK_DEMO_1_QUEUE_SIZE, sizeof(Message_t *));
+    TASK_CREATE(taskDemo1, tagTask1, 4096, process, 5, &xHandle);
     //...
     PROCESS_STATE_CHANGE(process, eProcessStateRunning);
 }
@@ -69,14 +71,51 @@ PROCESS_TERMINATE_FUNC(demoTerminate) {
 void taskDemo1(void* pvParameters)
 {
     ESP_LOGI(tagTask1, "Running!");
-    // printf("Task1: Running!!!\n");
-    DemoTaskParams_t* params = (DemoTaskParams_t*)pvParameters;
+    Process_t *process = (Process_t*) pvParameters;
+    AppParams_t*       params = process->parameters;
+    const AppConsts_t* consts = process->constants;
+    BaseType_t xStatus;
+    Message_t *receivedMessage ; //= { 0, 0, 0,};
+    const TickType_t tickToWait = pdMS_TO_TICKS(0);
+    
     for (;;)
     {
-        ESP_LOGI(tagTask1, "params->dummyValue [%d];", params->dummyValue);
-        params->dummyValue++;
+        ESP_LOGI(tagTask1, "params->dummyValue [%d];", params->task1Params.dummyValue);
+        params->task1Params.dummyValue++;
+
+        if(uxQueueMessagesWaiting(globalQueueList[eTaskDemo1]) != 0)
+        {
+            printf("Queue is not empty\n");       
+        }
+
+        xStatus = xQueueReceive(globalQueueList[eTaskDemo1], &receivedMessage, tickToWait);
+        
+        if(xStatus != pdPASS)
+        {
+            printf("Couldn't received anything from queue!\n");
+        }
+        else
+        {
+            printf("\nMessage Received from Process: %d | Task: %d \n", receivedMessage->senderProcess, receivedMessage->senderTask);
+            printf("Received message: %d \n\n", receivedMessage->data);
+
+            if(receivedMessage->senderProcess == eProcessDemo2)
+            {
+                printf("\nProcess2 Found! \n");
+                if(receivedMessage->senderTask == eTaskDemo2)
+                {
+                    printf("\nTask2 Found! \n");
+                }
+                else
+                {
+                    printf("\nTask2 Not Found! \n");
+                }
+            }
+            //printf("Received message: %d \n", receivedValue);
+        }
 
         vTaskDelay(TASK_DEMO_DELAY_INTERVAL / portTICK_PERIOD_MS);
+
     }
     vTaskDelete(NULL);
 }
